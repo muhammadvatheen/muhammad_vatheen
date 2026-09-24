@@ -1,0 +1,1201 @@
+```php
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>System Analysis Terminal</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+}
+
+body{
+    background:#020403;
+    color:#00ff66;
+    font-family:
+        "Courier New",
+        Consolas,
+        monospace;
+    overflow:hidden;
+}
+
+/* =========================================
+   CRT / SCANLINES
+========================================= */
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:50;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgba(255,255,255,.025) 0px,
+            rgba(255,255,255,.025) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
+    opacity:.35;
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:49;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 45%,
+            rgba(0,0,0,.65) 100%
+        );
+}
+
+/* =========================================
+   TERMINAL
+========================================= */
+
+.terminal{
+    width:100%;
+    height:100vh;
+    min-height:100vh;
+    padding:28px;
+    position:relative;
+    overflow:hidden;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(0,255,90,.045),
+            transparent 55%
+        ),
+        #020403;
+}
+
+/* =========================================
+   TOP BAR
+========================================= */
+
+.topbar{
+    height:35px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border-bottom:1px solid rgba(0,255,102,.18);
+    margin-bottom:20px;
+}
+
+.window-dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#00ff66;
+    box-shadow:0 0 12px #00ff66;
+}
+
+.top-title{
+    margin-left:5px;
+    font-size:12px;
+    color:#59ff91;
+    letter-spacing:1px;
+}
+
+.status{
+    margin-left:auto;
+    font-size:10px;
+    color:#28c95b;
+}
+
+/* =========================================
+   TERMINAL CONTENT
+========================================= */
+
+.terminal-content{
+    height:calc(100vh - 100px);
+    overflow:hidden;
+    font-size:14px;
+    line-height:1.7;
+}
+
+.line{
+    min-height:24px;
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+
+.dim{
+    color:#168b3c;
+}
+
+.green{
+    color:#00ff66;
+}
+
+.bright{
+    color:#72ff9a;
+    text-shadow:
+        0 0 5px rgba(0,255,102,.5);
+}
+
+.warning{
+    color:#b6ff00;
+}
+
+.error{
+    color:#ff3b3b;
+}
+
+.white{
+    color:#d6ffe1;
+}
+
+/* =========================================
+   CURSOR
+========================================= */
+
+.cursor{
+    display:inline-block;
+    width:9px;
+    height:17px;
+    background:#00ff66;
+    vertical-align:middle;
+    animation:blink .8s infinite;
+    box-shadow:0 0 8px #00ff66;
+}
+
+@keyframes blink{
+    0%,45%{
+        opacity:1;
+    }
+
+    46%,100%{
+        opacity:0;
+    }
+}
+
+/* =========================================
+   PROGRESS
+========================================= */
+
+.progress-wrapper{
+    margin-top:15px;
+    width:100%;
+    max-width:700px;
+}
+
+.progress-label{
+    color:#39d96d;
+    font-size:12px;
+    margin-bottom:5px;
+}
+
+.progress-bar{
+    height:16px;
+    border:1px solid #087a32;
+    padding:2px;
+    width:100%;
+}
+
+.progress-inner{
+    height:100%;
+    width:0%;
+    background:#00ff66;
+    box-shadow:
+        0 0 12px rgba(0,255,102,.7);
+    transition:width .12s linear;
+}
+
+.progress-percent{
+    margin-top:5px;
+    font-size:12px;
+    color:#58e980;
+}
+
+/* =========================================
+   GLITCH
+========================================= */
+
+.glitch{
+    position:relative;
+    animation:glitch .18s infinite;
+}
+
+@keyframes glitch{
+
+    0%{
+        transform:translate(0);
+    }
+
+    20%{
+        transform:translate(-2px,1px);
+    }
+
+    40%{
+        transform:translate(2px,-1px);
+    }
+
+    60%{
+        transform:translate(-1px,2px);
+    }
+
+    80%{
+        transform:translate(1px,-2px);
+    }
+
+    100%{
+        transform:translate(0);
+    }
+}
+
+/* =========================================
+   FINAL RESULT
+========================================= */
+
+.final{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:20;
+    padding:30px;
+    overflow:auto;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(0,255,102,.07),
+            transparent 55%
+        ),
+        #020403;
+}
+
+.final-inner{
+    max-width:900px;
+    margin:auto;
+}
+
+.final-title{
+    font-size:clamp(28px,6vw,65px);
+    font-weight:bold;
+    color:#00ff66;
+    text-shadow:
+        0 0 8px #00ff66,
+        0 0 25px rgba(0,255,102,.5);
+    margin-bottom:10px;
+}
+
+.final-subtitle{
+    color:#42d96e;
+    font-size:14px;
+    margin-bottom:30px;
+}
+
+.subject{
+    border:1px solid #078437;
+    background:rgba(0,255,102,.025);
+    padding:22px;
+    margin-bottom:25px;
+}
+
+.subject-label{
+    color:#239f4d;
+    font-size:11px;
+}
+
+.subject-name{
+    margin-top:7px;
+    font-size:clamp(25px,5vw,45px);
+    font-weight:bold;
+    color:#b7ffcb;
+}
+
+.roast-container{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.roast{
+    min-height:90px;
+    border:1px solid #075d29;
+    padding:15px;
+    background:rgba(0,255,102,.018);
+
+    opacity:0;
+    transform:translateX(-20px);
+}
+
+.roast.show{
+    animation:roastIn .45s forwards;
+}
+
+@keyframes roastIn{
+
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+
+}
+
+.roast-label{
+    color:#198b3e;
+    font-size:10px;
+    margin-bottom:8px;
+}
+
+.roast-value{
+    color:#8cffaa;
+    font-size:15px;
+    font-weight:bold;
+}
+
+.final-message{
+    margin-top:25px;
+    padding:25px;
+    border:1px solid #00ff66;
+    text-align:center;
+    background:rgba(0,255,102,.035);
+
+    opacity:0;
+}
+
+.final-message.show{
+    animation:finalPop .7s forwards;
+}
+
+@keyframes finalPop{
+
+    from{
+        opacity:0;
+        transform:scale(.96);
+    }
+
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+
+}
+
+.prank{
+    font-size:clamp(28px,7vw,60px);
+    font-weight:bold;
+    color:#00ff66;
+    text-shadow:
+        0 0 10px #00ff66,
+        0 0 35px #00ff66;
+}
+
+.prank-small{
+    margin-top:12px;
+    color:#69e88b;
+    font-size:13px;
+    line-height:1.7;
+}
+
+.restart{
+    margin-top:20px;
+    padding:13px 20px;
+    border:1px solid #00ff66;
+    background:transparent;
+    color:#00ff66;
+    font-family:inherit;
+    cursor:pointer;
+}
+
+.restart:hover{
+    background:#00ff66;
+    color:#020403;
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:600px){
+
+    .terminal{
+        padding:18px;
+    }
+
+    .terminal-content{
+        font-size:11px;
+    }
+
+    .top-title{
+        font-size:10px;
+    }
+
+    .status{
+        display:none;
+    }
+
+    .roast-container{
+        grid-template-columns:1fr;
+    }
+
+    .final{
+        padding:20px;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     TERMINAL SCREEN
+===================================================== -->
+
+<div class="terminal" id="terminal">
+
+    <div class="topbar">
+
+        <div class="window-dot"></div>
+        <div class="window-dot"></div>
+        <div class="window-dot"></div>
+
+        <div class="top-title">
+            SECURE ANALYSIS TERMINAL
+        </div>
+
+        <div class="status">
+            SYSTEM ONLINE
+        </div>
+
+    </div>
+
+
+    <div
+        class="terminal-content"
+        id="terminalContent">
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     FINAL RESULT
+===================================================== -->
+
+<div
+    class="final"
+    id="final">
+
+    <div class="final-inner">
+
+        <div class="final-title glitch">
+            ANALYSIS COMPLETE
+        </div>
+
+        <div class="final-subtitle">
+            // FINAL SUBJECT REPORT GENERATED
+        </div>
+
+
+        <div class="subject">
+
+            <div class="subject-label">
+                SUBJECT IDENTIFIED
+            </div>
+
+            <div class="subject-name">
+                FAIZ KACUNG
+            </div>
+
+        </div>
+
+
+        <div
+            class="roast-container"
+            id="roastContainer">
+
+            <div class="roast">
+
+                <div class="roast-label">
+                    [01] KENAKALAN INDEX
+                </div>
+
+                <div class="roast-value">
+                    99% — NAKAL BANGET
+                </div>
+
+            </div>
+
+
+            <div class="roast">
+
+                <div class="roast-label">
+                    [02] GALAK MODE
+                </div>
+
+                <div class="roast-value">
+                    98% — JANGAN DIAJAK DEBAT
+                </div>
+
+            </div>
+
+
+            <div class="roast">
+
+                <div class="roast-label">
+                    [03] JAHIL LEVEL
+                </div>
+
+                <div class="roast-value">
+                    100% — MASTER JAHIL
+                </div>
+
+            </div>
+
+
+            <div class="roast">
+
+                <div class="roast-label">
+                    [04] BIKIN TEMAN EMOSI
+                </div>
+
+                <div class="roast-value">
+                    EXTREME — AUTO PANAS
+                </div>
+
+            </div>
+
+
+            <div class="roast">
+
+                <div class="roast-label">
+                    [05] SUSAH DIBILANGIN
+                </div>
+
+                <div class="roast-value">
+                    100% — COMMAND REJECTED
+                </div>
+
+            </div>
+
+
+            <div class="roast">
+
+                <div class="roast-label">
+                    [06] MODE KALem
+                </div>
+
+                <div class="roast-value">
+                    NOT FOUND
+                </div>
+
+            </div>
+
+
+            <div class="roast">
+
+                <div class="roast-label">
+                    [07] TINGKAT KEGABUTAN
+                </div>
+
+                <div class="roast-value">
+                    LEGENDARY
+                </div>
+
+            </div>
+
+
+            <div class="roast">
+
+                <div class="roast-label">
+                    [08] BAKAT BIKIN ULah
+                </div>
+
+                <div class="roast-value">
+                    OVERCLOCKED
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="final-message"
+            id="finalMessage">
+
+            <div class="prank">
+                😂 KENA PRANK, faiz KACUNG!
+            </div>
+
+            <div class="prank-small">
+
+                Sistem telah menyimpulkan bahwa faiz Kacung
+                terlalu berbahaya bagi ketenangan
+                teman-temannya. 🤣
+
+                <br><br>
+
+                Tenang, Tin. Ini cuma prank/roasting.
+                Tidak ada data pribadi, foto, file,
+                kamera, password, atau perangkat yang
+                benar-benar diakses.
+
+            </div>
+
+            <button
+                class="restart"
+                onclick="location.reload()">
+
+                [ JALANKAN ULANG ]
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   CONFIG
+===================================================== */
+
+const terminalContent =
+    document.getElementById("terminalContent");
+
+const terminal =
+    document.getElementById("terminal");
+
+const finalScreen =
+    document.getElementById("final");
+
+const roastItems =
+    document.querySelectorAll(".roast");
+
+const finalMessage =
+    document.getElementById("finalMessage");
+
+
+/* =====================================================
+   TYPEWRITER
+===================================================== */
+
+function typeLine(
+    text,
+    className = "",
+    speed = 18
+){
+
+    return new Promise(resolve => {
+
+        const line =
+            document.createElement("div");
+
+        line.className =
+            "line " + className;
+
+        terminalContent.appendChild(line);
+
+
+        let index = 0;
+
+
+        const cursor =
+            document.createElement("span");
+
+        cursor.className =
+            "cursor";
+
+
+        line.appendChild(cursor);
+
+
+        const timer =
+            setInterval(() => {
+
+                if(index >= text.length){
+
+                    clearInterval(timer);
+
+                    cursor.remove();
+
+                    resolve();
+
+                    return;
+
+                }
+
+
+                line.insertBefore(
+                    document.createTextNode(
+                        text[index]
+                    ),
+                    cursor
+                );
+
+
+                index++;
+
+            },speed);
+
+    });
+
+}
+
+
+/* =====================================================
+   NORMAL LINE
+===================================================== */
+
+function addLine(
+    text,
+    className = ""
+){
+
+    const line =
+        document.createElement("div");
+
+    line.className =
+        "line " + className;
+
+    line.textContent =
+        text;
+
+    terminalContent.appendChild(line);
+
+}
+
+
+/* =====================================================
+   RANDOM HEX
+===================================================== */
+
+function randomHex(length = 8){
+
+    const chars =
+        "0123456789ABCDEF";
+
+    let result = "";
+
+    for(let i=0;i<length;i++){
+
+        result +=
+            chars[
+                Math.floor(
+                    Math.random()*chars.length
+                )
+            ];
+
+    }
+
+    return result;
+
+}
+
+
+/* =====================================================
+   PROGRESS
+===================================================== */
+
+function createProgress(){
+
+    return new Promise(resolve => {
+
+        const wrapper =
+            document.createElement("div");
+
+        wrapper.className =
+            "progress-wrapper";
+
+
+        wrapper.innerHTML = `
+
+            <div class="progress-label">
+                SYSTEM ANALYSIS PROGRESS
+            </div>
+
+            <div class="progress-bar">
+                <div
+                    class="progress-inner"
+                    id="progressInner">
+                </div>
+            </div>
+
+            <div
+                class="progress-percent"
+                id="progressPercent">
+                0%
+            </div>
+
+        `;
+
+
+        terminalContent.appendChild(
+            wrapper
+        );
+
+
+        const bar =
+            wrapper.querySelector(
+                "#progressInner"
+            );
+
+        const number =
+            wrapper.querySelector(
+                "#progressPercent"
+            );
+
+
+        let value = 0;
+
+
+        const timer =
+            setInterval(() => {
+
+                /*
+                 * Kecepatan random agar terlihat
+                 * seperti terminal analysis.
+                 */
+
+                value +=
+                    Math.floor(
+                        Math.random()*4
+                    ) + 1;
+
+
+                if(value > 100){
+                    value = 100;
+                }
+
+
+                bar.style.width =
+                    value + "%";
+
+                number.textContent =
+                    value + "%";
+
+
+                if(value >= 100){
+
+                    clearInterval(timer);
+
+                    resolve();
+
+                }
+
+            },100);
+
+    });
+
+}
+
+
+/* =====================================================
+   TERMINAL EFFECT
+===================================================== */
+
+async function runTerminal(){
+
+    await typeLine(
+        "SECURE ANALYSIS TERMINAL v4.7.2",
+        "bright",
+        25
+    );
+
+    await typeLine(
+        "Initializing system analysis engine...",
+        "dim",
+        14
+    );
+
+    await typeLine(
+        "Loading modules: [OK]",
+        "green",
+        13
+    );
+
+    await typeLine(
+        "Loading behavior analyzer: [OK]",
+        "green",
+        13
+    );
+
+    await typeLine(
+        "Loading personality scanner: [OK]",
+        "green",
+        13
+    );
+
+
+    addLine("");
+
+    await typeLine(
+        "root@analysis:~$ initialize_subject_scan",
+        "white",
+        16
+    );
+
+    await typeLine(
+        "Generating temporary analysis session...",
+        "dim",
+        13
+    );
+
+    await typeLine(
+        "SESSION_ID: " + randomHex(12),
+        "dim",
+        10
+    );
+
+
+    addLine("");
+
+    await typeLine(
+        "root@analysis:~$ scan --mode=advanced",
+        "white",
+        15
+    );
+
+    await typeLine(
+        "Analyzing behavioral indicators...",
+        "dim",
+        12
+    );
+
+
+    await createProgress();
+
+
+    addLine("");
+
+    await typeLine(
+        "[+] DEVICE ANALYSIS COMPLETE",
+        "green",
+        12
+    );
+
+    await typeLine(
+        "[+] SECURITY ANALYSIS COMPLETE",
+        "green",
+        12
+    );
+
+    await typeLine(
+        "[+] BEHAVIOR ANALYSIS COMPLETE",
+        "green",
+        12
+    );
+
+
+    addLine("");
+
+    await typeLine(
+        "root@analysis:~$ analyze_personality",
+        "white",
+        15
+    );
+
+    await typeLine(
+        "Searching behavioral patterns...",
+        "dim",
+        12
+    );
+
+    await typeLine(
+        "Calculating personality index...",
+        "dim",
+        12
+    );
+
+    await typeLine(
+        "Comparing known behavioral patterns...",
+        "dim",
+        12
+    );
+
+
+    /*
+     * Fake anomaly.
+     */
+
+    await new Promise(
+        resolve => setTimeout(resolve,700)
+    );
+
+
+    await typeLine(
+        "[!] UNUSUAL PERSONALITY PATTERN DETECTED",
+        "warning",
+        13
+    );
+
+
+    await typeLine(
+        "[!] Additional analysis required...",
+        "warning",
+        13
+    );
+
+
+    addLine("");
+
+    await typeLine(
+        "root@analysis:~$ deep_scan --subject",
+        "white",
+        15
+    );
+
+    await typeLine(
+        "Accessing personality analysis...",
+        "dim",
+        12
+    );
+
+    await typeLine(
+        "Processing behavioral score...",
+        "dim",
+        12
+    );
+
+    await typeLine(
+        "Evaluating chaos level...",
+        "dim",
+        12
+    );
+
+
+    await new Promise(
+        resolve => setTimeout(resolve,1000)
+    );
+
+
+    addLine("");
+
+    await typeLine(
+        "████████████████████████████████ 100%",
+        "bright",
+        4
+    );
+
+
+    await typeLine(
+        "FINAL ANALYSIS GENERATED",
+        "green",
+        25
+    );
+
+
+    await new Promise(
+        resolve => setTimeout(resolve,1500)
+    );
+
+
+    /*
+     * Glitch effect sebelum hasil.
+     */
+
+    terminal.classList.add("glitch");
+
+    await new Promise(
+        resolve => setTimeout(resolve,500)
+    );
+
+    terminal.classList.remove("glitch");
+
+
+    showFinal();
+
+}
+
+
+/* =====================================================
+   SHOW FINAL
+===================================================== */
+
+function showFinal(){
+
+    terminal.style.display =
+        "none";
+
+    finalScreen.style.display =
+        "block";
+
+
+    /*
+     * Roasting muncul satu per satu.
+     */
+
+    roastItems.forEach(
+        (item,index) => {
+
+            setTimeout(() => {
+
+                item.classList.add("show");
+
+            },500 + (index * 550));
+
+        }
+    );
+
+
+    /*
+     * Setelah semua roasting tampil,
+     * baru tampilkan KENA PRANK.
+     */
+
+    const delay =
+        500 +
+        (roastItems.length * 550) +
+        1000;
+
+
+    setTimeout(() => {
+
+        finalMessage.classList.add(
+            "show"
+        );
+
+    },delay);
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+window.addEventListener(
+    "load",
+    () => {
+
+        setTimeout(
+            runTerminal,
+            700
+        );
+
+    }
+);
+
+</script>
+
+</body>
+</html>
+```

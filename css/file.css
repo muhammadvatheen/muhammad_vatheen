@@ -1,0 +1,373 @@
+/* Tema Warna Ala Supercar Mewah (Hitam & Aksen Emas/Kuning) */
+:root {
+    --bg-black: #0b0b0b;
+    --card-black: #141414;
+    --accent-gold: #ffc000;
+    --text-white: #ffffff;
+    --text-gray: #aaaaaa;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg-black);
+    color: var(--text-white);
+}
+
+/* Navbar */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(11, 11, 11, 0.9);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid #222;
+}
+
+.navbar {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--text-white);
+}
+
+.logo span {
+    color: var(--accent-gold);
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-gray);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: var(--accent-gold);
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Hero Section */
+.hero {
+    height: 100vh;
+    background: url("/images/dummy/senematik\ mobil\ balap.mp4")
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3), var(--bg-black));
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+.hero-content h4 {
+    color: var(--accent-gold);
+    letter-spacing: 4px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.hero-content h1 {
+    font-size: 52px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    color: var(--text-gray);
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+/* 1. Atur parent section hero-nya */
+.hero {
+    position: relative;
+    overflow: hidden; /* Supaya video gak keluar dari kotak section */
+    width: 100%;
+    height: 100vh; /* Sesuaikan tinggi layarnya (misal: satu layar penuh) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 2. Kode utama buat video background-nya */
+.hero-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1; /* Posisi di paling belakang (di bawah overlay & teks) */
+    object-fit: cover; /* Biar video gak gepeng/distorsi */
+}
+
+/* 3. Lapisan gelap transparan (biar teks lu tetap jelas dibaca) */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Ubah angka 0.5 kalau mau lebih gelap/terang */
+    z-index: 0;
+}
+
+/* 4. Posisi teks biar ada di atas video & overlay */
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center; /* Sesuaikan kalau sebelumnya rata kiri */
+    color: #ffffff;
+}
+
+/* Tombol Khas Tajam */
+.btn-lambo {
+    display: inline-block;
+    background: var(--accent-gold);
+    color: #000;
+    padding: 14px 35px;
+    font-weight: 800;
+    text-decoration: none;
+    letter-spacing: 2px;
+    font-size: 13px;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-lambo:hover {
+    background: #e5ad00;
+    transform: translateY(-2px);
+}
+
+/* Sections General */
+section {
+    padding: 100px 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+section h2 {
+    font-size: 36px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    color: var(--text-gray);
+    margin-bottom: 60px;
+    font-size: 15px;
+}
+
+/* Models Grid */
+.car-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    text-align: left;
+}
+
+.car-card {
+    background: var(--card-black);
+    border: 1px solid #222;
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.car-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-gold);
+}
+
+.car-img {
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+}
+
+.car-info {
+    padding: 25px;
+}
+
+.car-info h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.specs {
+    color: var(--text-gray);
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text-white);
+    border: 1px solid var(--text-white);
+    padding: 10px 20px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-outline:hover {
+    background: var(--text-white);
+    color: #000;
+}
+
+/* DNA Section */
+.dna {
+    background: linear-gradient(to right, #0b0b0b, #151515);
+    border-top: 1px solid #222;
+    border-bottom: 1px solid #222;
+}
+
+.dna-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    padding: 0 20px;
+}
+
+.dna-text h2 {
+    margin-bottom: 20px;
+}
+
+.dna-text p {
+    color: var(--text-gray);
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+.stats-box {
+    display: flex;
+    gap: 50px;
+    text-align: center;
+}
+
+.stats-box h3 {
+    color: var(--accent-gold);
+    font-size: 32px;
+    font-weight: 900;
+}
+
+.stats-box p {
+    font-size: 12px;
+    color: var(--text-gray);
+    margin: 0;
+}
+
+/* Contact / Form */
+.lambo-form {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: left;
+}
+
+.lambo-form input, 
+.lambo-form select {
+    width: 100%;
+    padding: 15px;
+    background: var(--card-black);
+    border: 1px solid #333;
+    color: #fff;
+    font-size: 14px;
+}
+
+.lambo-form input:focus, 
+.lambo-form select:focus {
+    border-color: var(--accent-gold);
+    outline: none;
+}
+
+/* Footer */
+footer {
+    background: #050505;
+    text-align: center;
+    padding: 30px;
+    color: var(--text-gray);
+    font-size: 12px;
+    border-top: 1px solid #1a1a1a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px; left: 0;
+        width: 100%;
+        background: var(--bg-black);
+        padding: 20px;
+        border-bottom: 1px solid #222;
+        text-align: center;
+    }
+    .nav-links.active {
+        display: flex;
+    }
+    .menu-toggle {
+        display: block;
+    }
+    .hero-content h1 {
+        font-size: 36px;
+    }
+    .stats-box {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
